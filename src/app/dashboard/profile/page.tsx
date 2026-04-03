@@ -1,41 +1,101 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import {
+  startTransition,
+  useActionState,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/providers/toast-provider";
-import { updateProfileAction } from "@/lib/actions/job-actions";
+import {
+  type ProfileActionState,
+  updateProfileAction,
+} from "@/lib/actions/profile-actions";
 
-type ProfileState = {
-  error?: string;
-  success?: boolean;
-  fieldErrors?: Record<string, string>;
+const defaultEmailPrefs = {
+  interviewReminders: true,
+  followUpReminders: true,
+  weeklySummary: true,
 };
 
+type ProfileState = ProfileActionState;
+
 export default function ProfilePage() {
-  const { data: session } = useSession();
-  const [state, action, pending] = useActionState<ProfileState, FormData>(updateProfileAction, {});
+  const { data: session, update: updateSession } = useSession();
+  const [state, action, pending] = useActionState<ProfileState, FormData>(
+    updateProfileAction,
+    {},
+  );
   const { toast } = useToast();
-  const [emailPrefs, setEmailPrefs] = useState({
-    interviewReminders: true,
-    followUpReminders: true,
-    weeklySummary: true,
-  });
+  const [name, setName] = useState("");
+  const [emailPrefs, setEmailPrefs] = useState(defaultEmailPrefs);
+  const awaitingSubmitResultRef = useRef(false);
 
   useEffect(() => {
-    if (state?.error) toast(state.error, "error");
-    if (state?.success) toast("Profile updated");
-  }, [state, toast]);
+    let mounted = true;
+
+    async function loadProfile() {
+      try {
+        const response = await fetch("/api/profile", { cache: "no-store" });
+        if (!response.ok) return;
+
+        const data = (await response.json()) as {
+          profile?: {
+            name?: string;
+            emailPrefs?: Partial<typeof defaultEmailPrefs>;
+          };
+        };
+
+        if (!mounted || !data.profile) return;
+
+        setName(data.profile.name ?? "");
+        setEmailPrefs({
+          ...defaultEmailPrefs,
+          ...data.profile.emailPrefs,
+        });
+      } catch {
+        // Keep UI usable with defaults even if profile prefetch fails.
+      }
+    }
+
+    loadProfile();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (pending) return;
+    if (!awaitingSubmitResultRef.current) return;
+
+    awaitingSubmitResultRef.current = false;
+
+    if (state?.error) {
+      toast(state.error, "error");
+      return;
+    }
+
+    if (state?.success) {
+      toast("Profile updated");
+      const nextName = state.name ?? name;
+      void updateSession({ name: nextName });
+    }
+  }, [name, pending, state, toast, updateSession]);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    awaitingSubmitResultRef.current = true;
     const formData = new FormData(e.currentTarget);
-    // Add checkbox values
+    formData.set("name", name);
     formData.set("interviewReminders", String(emailPrefs.interviewReminders));
     formData.set("followUpReminders", String(emailPrefs.followUpReminders));
     formData.set("weeklySummary", String(emailPrefs.weeklySummary));
-    action(formData);
+    startTransition(() => action(formData));
   }
 
   return (
@@ -59,7 +119,8 @@ export default function ProfilePage() {
             <Input
               label="Name"
               name="name"
-              defaultValue={session?.user?.name ?? ""}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               placeholder="Your name"
             />
             <Input
@@ -77,38 +138,53 @@ export default function ProfilePage() {
               Email Notifications
             </h2>
 
-            {[
-              { key: "interviewReminders", label: "Interview Reminders", desc: "Get notified 24h before a scheduled interview" },
-              { key: "followUpReminders", label: "Follow-Up Reminders", desc: "Reminded if no response after 7 days" },
-              { key: "weeklySummary", label: "Weekly Summary", desc: "Receive a weekly summary of your application stats" },
-            ].map((pref) => (
-              <label key={pref.key} className="flex items-center justify-between rounded-lg border border-zinc-200 p-4 dark:border-zinc-700 cursor-pointer">
+            {(
+              [
+                "interviewReminders",
+                "followUpReminders",
+                "weeklySummary",
+              ] as const
+            ).map((key) => (
+              <label
+                key={key}
+                className="flex items-center justify-between rounded-lg border border-zinc-200 p-4 dark:border-zinc-700 cursor-pointer"
+              >
                 <div>
-                  <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{pref.label}</p>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">{pref.desc}</p>
+                  <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                    {key
+                      .replace(/([A-Z])/g, " $1")
+                      .replace(/^./, (c) => c.toUpperCase())}
+                  </p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                    {key === "interviewReminders"
+                      ? "Get notified 24h before a scheduled interview"
+                      : key === "followUpReminders"
+                        ? "Reminded if no response after 7 days"
+                        : "Receive a weekly summary of your application stats"}
+                  </p>
                 </div>
                 <input
                   type="hidden"
-                  name={pref.key}
-                  value={String(emailPrefs[pref.key as keyof typeof emailPrefs])}
+                  name={key}
+                  value={String(emailPrefs[key])}
                 />
                 <button
                   type="button"
                   onClick={() =>
                     setEmailPrefs((prev) => ({
                       ...prev,
-                      [pref.key]: !prev[pref.key as keyof typeof prev],
+                      [key]: !prev[key],
                     }))
                   }
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    emailPrefs[pref.key as keyof typeof emailPrefs]
+                    emailPrefs[key]
                       ? "bg-zinc-900 dark:bg-white"
                       : "bg-zinc-300 dark:bg-zinc-600"
                   }`}
                 >
                   <span
                     className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform dark:bg-zinc-900 ${
-                      emailPrefs[pref.key as keyof typeof emailPrefs] ? "translate-x-6" : "translate-x-1"
+                      emailPrefs[key] ? "translate-x-6" : "translate-x-1"
                     }`}
                   />
                 </button>

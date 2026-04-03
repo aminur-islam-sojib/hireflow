@@ -2,7 +2,7 @@
 
 import { auth } from "@/lib/auth";
 import { collections, connectDB, dbConnect, toObjectId } from "@/lib/dbConnect";
-import { jobSchema, profileSchema } from "@/lib/validations";
+import { jobSchema } from "@/lib/validations";
 import { revalidatePath } from "next/cache";
 
 // -- Job CRUD --
@@ -237,53 +237,5 @@ export async function updateJobStatusAction(jobId: string, status: string) {
   } catch (err) {
     console.error("[updateJobStatusAction]", err);
     return { error: "Failed to update status" };
-  }
-}
-
-// -- Profile --
-
-export async function updateProfileAction(
-  _prevState: unknown,
-  formData: FormData,
-): Promise<{
-  error?: string;
-  success?: boolean;
-  fieldErrors?: Record<string, string>;
-}> {
-  const session = await auth();
-  if (!session?.user?.id) return { error: "Unauthorized" };
-
-  const parsed = profileSchema.safeParse({
-    name: formData.get("name"),
-    emailPrefs: {
-      interviewReminders: formData.get("interviewReminders") === "true",
-      followUpReminders: formData.get("followUpReminders") === "true",
-      weeklySummary: formData.get("weeklySummary") === "true",
-    },
-  });
-
-  if (!parsed.success) {
-    const fieldErrors: Record<string, string> = {};
-    for (const [key, value] of Object.entries(
-      parsed.error.flatten().fieldErrors,
-    )) {
-      if (value?.[0]) fieldErrors[key] = value[0];
-    }
-    return { error: "Validation failed", fieldErrors };
-  }
-
-  try {
-    await connectDB();
-    const users = dbConnect(collections.USERS);
-
-    await users.updateOne(
-      { _id: toObjectId(session.user.id) },
-      { $set: parsed.data },
-    );
-
-    return { success: true };
-  } catch (err) {
-    console.error("[updateProfileAction]", err);
-    return { error: "Failed to update profile" };
   }
 }
