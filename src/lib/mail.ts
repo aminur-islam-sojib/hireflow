@@ -24,13 +24,17 @@ export async function sendEmail({
   html: string;
 }) {
   if (!transporter || !enabled || !process.env.SMTP_USER) {
-    console.log("[Mail]", "Email disabled or not configured — skipping send to", to);
+    console.log(
+      "[Mail]",
+      "Email disabled or not configured — skipping send to",
+      to,
+    );
     return;
   }
 
   try {
     await transporter.sendMail({
-      from: process.env.SMTP_FROM || "JobTrackr",
+      from: process.env.SMTP_FROM || "HireFlow",
       to,
       subject,
       html,
@@ -41,7 +45,11 @@ export async function sendEmail({
   }
 }
 
-export function buildInterviewReminderEmail(job: { company: string; position: string; interviewDate: Date }) {
+export function buildInterviewReminderEmail(job: {
+  company: string;
+  position: string;
+  interviewDate: Date;
+}) {
   return {
     subject: `Interview Reminder: ${job.position} at ${job.company}`,
     html: `
@@ -57,7 +65,11 @@ export function buildInterviewReminderEmail(job: { company: string; position: st
   };
 }
 
-export function buildFollowUpReminderEmail(job: { company: string; position: string; appliedDate: Date }) {
+export function buildFollowUpReminderEmail(job: {
+  company: string;
+  position: string;
+  appliedDate: Date;
+}) {
   return {
     subject: `Follow Up: ${job.position} at ${job.company}`,
     html: `
@@ -68,9 +80,15 @@ export function buildFollowUpReminderEmail(job: { company: string; position: str
   };
 }
 
-export function buildWeeklySummaryEmail(stats: { total: number; applied: number; interview: number; rejected: number; offer: number }) {
+export function buildWeeklySummaryEmail(stats: {
+  total: number;
+  applied: number;
+  interview: number;
+  rejected: number;
+  offer: number;
+}) {
   return {
-    subject: "JobTrackr Weekly Summary",
+    subject: "HireFlow Weekly Summary",
     html: `
       <h2>Weekly Application Summary</h2>
       <ul>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
@@ -11,9 +11,13 @@ import { loginSchema } from "@/lib/validations";
 type LoginFormState = {
   error?: string;
   fieldErrors?: Record<string, string>;
+  success?: boolean;
 };
 
-async function loginAction(prevState: LoginFormState | undefined, formData: FormData): Promise<LoginFormState> {
+async function loginAction(
+  prevState: LoginFormState | undefined,
+  formData: FormData,
+): Promise<LoginFormState> {
   const parsed = loginSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),
@@ -21,7 +25,9 @@ async function loginAction(prevState: LoginFormState | undefined, formData: Form
 
   if (!parsed.success) {
     const fieldErrors: Record<string, string> = {};
-    for (const [key, value] of Object.entries(parsed.error.flatten().fieldErrors)) {
+    for (const [key, value] of Object.entries(
+      parsed.error.flatten().fieldErrors,
+    )) {
       if (value?.[0]) fieldErrors[key] = value[0];
     }
     return { error: "Validation failed", fieldErrors };
@@ -37,7 +43,7 @@ async function loginAction(prevState: LoginFormState | undefined, formData: Form
     return { error: "Invalid email or password" };
   }
 
-  return { success: true } as never;
+  return { success: true };
 }
 
 export function LoginForm() {
@@ -45,17 +51,12 @@ export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callback = searchParams.get("callbackUrl") || "/dashboard";
-  const [loggingIn, setLoggingIn] = useState(false);
 
   useEffect(() => {
-    // If the action returned without error, redirect happens via the form's default
-    // We handle credential success inside the action handler
-  }, [state]);
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    const formData = new FormData(e.currentTarget);
-    await action(formData);
-  }
+    if (state?.success) {
+      router.replace(callback);
+    }
+  }, [state?.success, callback, router]);
 
   return (
     <div className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
@@ -64,7 +65,10 @@ export function LoginForm() {
       </h1>
       <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
         Don&apos;t have an account?{" "}
-        <Link href="/register" className="text-zinc-900 underline decoration-zinc-400 underline-offset-4 dark:text-zinc-100">
+        <Link
+          href="/register"
+          className="text-zinc-900 underline decoration-zinc-400 underline-offset-4 dark:text-zinc-100"
+        >
           Sign up
         </Link>
       </p>
@@ -75,7 +79,7 @@ export function LoginForm() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
+      <form action={action} className="mt-6 flex flex-col gap-4">
         <Input
           label="Email"
           name="email"
@@ -92,8 +96,8 @@ export function LoginForm() {
           required
           error={state?.fieldErrors?.password}
         />
-        <Button type="submit" className="mt-2" disabled={pending || loggingIn}>
-          {pending || loggingIn ? "Signing in..." : "Sign in"}
+        <Button type="submit" className="mt-2" disabled={pending}>
+          {pending ? "Signing in..." : "Sign in"}
         </Button>
       </form>
 

@@ -2,11 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Briefcase, Columns, Settings, Menu, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import {
+  LayoutDashboard,
+  Briefcase,
+  Columns,
+  Settings,
+  Menu,
+  X,
+} from "lucide-react";
 import { useState } from "react";
+import Image from "next/image";
+import Logout from "../providers/logout";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -39,18 +46,27 @@ export function Sidebar({ user }: { user?: { name?: string | null } }) {
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 z-50 flex w-64 flex-col border-r border-zinc-200 bg-white transition-transform dark:border-zinc-800 dark:bg-zinc-900 md:relative md:translate-x-0",
+          "fixed inset-y-0 left-0  z-50 flex w-64 flex-col border-r border-zinc-200 bg-white transition-transform dark:border-zinc-800 dark:bg-zinc-900 md:relative md:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >
         <div className="flex h-16 items-center border-b border-zinc-200 px-6 dark:border-zinc-800">
-          <Link
-            href="/dashboard"
-            className="text-lg font-bold tracking-tight text-zinc-900 dark:text-zinc-100"
-            onClick={() => setOpen(false)}
-          >
-            JobTrackr
-          </Link>
+          <div className="flex items-center">
+            <Image
+              src="/hire-flow.png"
+              alt="hireflow logo "
+              height={12}
+              width={12}
+              className="mr-2 h-6 w-6"
+            />
+            <Link
+              href="/"
+              className="text-lg font-bold tracking-tight text-zinc-900 dark:text-zinc-100"
+              onClick={() => setOpen(false)}
+            >
+              HireFlow
+            </Link>
+          </div>
           <button className="ml-auto md:hidden" onClick={() => setOpen(false)}>
             <X className="h-5 w-5 text-zinc-500" />
           </button>
@@ -82,13 +98,7 @@ export function Sidebar({ user }: { user?: { name?: string | null } }) {
           <div className="mb-2 px-2 text-xs font-medium text-zinc-500 dark:text-zinc-400">
             {user?.name || "User"}
           </div>
-          <Button
-            variant="ghost"
-            className="w-full justify-start text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"
-            onClick={() => signOut({ callbackUrl: "/login" })}
-          >
-            Sign out
-          </Button>
+          <Logout className="w-full justify-start text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30" />
         </div>
       </aside>
     </>

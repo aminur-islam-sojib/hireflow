@@ -1,7 +1,15 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { type PropsWithChildren, createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import {
+  type PropsWithChildren,
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 type Toast = {
   id: number;
@@ -30,17 +38,21 @@ export function ToastProvider({ children }: PropsWithChildren) {
     }
   }
 
-  const toast = useCallback((message: string, type: "success" | "error" = "success") => {
-    const id = nextId++;
-    setToasts((prev) => [...prev, { id, message, type }]);
+  const toast = useCallback(
+    (message: string, type: "success" | "error" = "success") => {
+      const id = nextId++;
+      setToasts((prev) => [...prev, { id, message, type }]);
 
-    const timeout = setTimeout(() => removeToast(id), 3500);
-    timeouts.current.set(id, timeout);
-  }, []);
+      const timeout = setTimeout(() => removeToast(id), 3500);
+      timeouts.current.set(id, timeout);
+    },
+    [],
+  );
 
   useEffect(() => {
     return () => {
       timeouts.current.forEach(clearTimeout);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       timeouts.current.clear();
     };
   }, []);
@@ -48,7 +60,7 @@ export function ToastProvider({ children }: PropsWithChildren) {
   return (
     <ToastContext.Provider value={{ toast }}>
       {children}
-      <div className="fixed bottom-4 right-4 z-[100] flex flex-col gap-2">
+      <div className="fixed bottom-4 right-4 z-100 flex flex-col gap-2">
         {toasts.map((t) => (
           <div
             key={t.id}
@@ -60,7 +72,10 @@ export function ToastProvider({ children }: PropsWithChildren) {
             )}
           >
             {t.message}
-            <button onClick={() => removeToast(t.id)} className="ml-2 opacity-60 hover:opacity-100">
+            <button
+              onClick={() => removeToast(t.id)}
+              className="ml-2 opacity-60 hover:opacity-100"
+            >
               ✕
             </button>
           </div>

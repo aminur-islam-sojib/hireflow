@@ -1,13 +1,31 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 import { useToast } from "@/components/providers/toast-provider";
 import { createJobAction, updateJobAction } from "@/lib/actions/job-actions";
 import { cn } from "@/lib/utils";
+import { Label } from "../ui/label";
 
 type JobFormState = {
   error?: string;
@@ -19,6 +37,8 @@ type JobFormState = {
 type JobFormProps = {
   mode?: "create" | "edit";
   initialData?: JobFormState["job"] & { _id?: string };
+  onSuccess?: () => void | Promise<void>;
+  onCancel?: () => void;
 };
 
 const defaultFormValues = {
@@ -26,6 +46,7 @@ const defaultFormValues = {
   position: "",
   positionType: "Remote",
   url: "",
+  cvUrl: "",
   status: "Applied",
   appliedDate: new Date().toISOString().split("T")[0],
   notes: "",
@@ -35,9 +56,17 @@ const defaultFormValues = {
   interviewLink: "",
 };
 
-export function JobForm({ mode = "create", initialData }: JobFormProps) {
+export function JobForm({
+  mode = "create",
+  initialData,
+  onSuccess,
+  onCancel,
+}: JobFormProps) {
   const actionFn = mode === "edit" ? updateJobAction : createJobAction;
-  const [state, action, pending] = useActionState<JobFormState, FormData>(actionFn, {});
+  const [state, action, pending] = useActionState<JobFormState, FormData>(
+    actionFn,
+    {},
+  );
   const router = useRouter();
   const { toast } = useToast();
 
@@ -47,30 +76,53 @@ export function JobForm({ mode = "create", initialData }: JobFormProps) {
         position: (initialData as any).position ?? "",
         positionType: (initialData as any).positionType ?? "Remote",
         url: (initialData as any).url ?? "",
+        cvUrl: (initialData as any).cvUrl ?? "",
         status: (initialData as any).status ?? "Applied",
         appliedDate: (initialData as any).appliedDate
-          ? new Date((initialData as any).appliedDate).toISOString().split("T")[0]
+          ? new Date((initialData as any).appliedDate)
+              .toISOString()
+              .split("T")[0]
           : defaultFormValues.appliedDate,
         notes: (initialData as any).notes ?? "",
         tags: ((initialData as any).tags ?? []).join(", "),
         interviewDate: (initialData as any).interview?.date
-          ? new Date((initialData as any).interview.date).toISOString().split("T")[0]
+          ? new Date((initialData as any).interview.date)
+              .toISOString()
+              .split("T")[0]
           : "",
         interviewType: (initialData as any).interview?.type ?? "",
         interviewLink: (initialData as any).interview?.link ?? "",
       }
     : defaultFormValues;
 
+  const [appliedDate, setAppliedDate] = useState<Date | undefined>(() => {
+    if (!defaults.appliedDate) return undefined;
+    const parsed = new Date(defaults.appliedDate);
+    return Number.isNaN(parsed.getTime()) ? undefined : parsed;
+  });
+
+  const [interviewDate, setInterviewDate] = useState<Date | undefined>(() => {
+    if (!defaults.interviewDate) return undefined;
+    const parsed = new Date(defaults.interviewDate);
+    return Number.isNaN(parsed.getTime()) ? undefined : parsed;
+  });
+
   useEffect(() => {
     if (state?.error) {
       toast(state.error, "error");
     }
     if (state?.success) {
-      toast(mode === "edit" ? "Job updated successfully" : "Job added successfully");
-      router.push("/dashboard/jobs");
-      router.refresh();
+      toast(
+        mode === "edit" ? "Job updated successfully" : "Job added successfully",
+      );
+      if (onSuccess) {
+        void onSuccess();
+      } else {
+        router.push("/dashboard/jobs");
+        router.refresh();
+      }
     }
-  }, [state, mode, router, toast]);
+  }, [state, mode, router, toast, onSuccess]);
 
   return (
     <form action={action} className="space-y-4">
@@ -79,115 +131,226 @@ export function JobForm({ mode = "create", initialData }: JobFormProps) {
       )}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Input
-          label="Company *"
-          name="company"
-          defaultValue={defaults.company}
-          placeholder="Acme Inc."
-          required
-          error={state?.fieldErrors?.company}
-        />
-        <Input
-          label="Position *"
-          name="position"
-          defaultValue={defaults.position}
-          placeholder="Frontend Developer"
-          required
-          error={state?.fieldErrors?.position}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Select
-          label="Position Type"
-          name="positionType"
-          defaultValue={defaults.positionType}
-          options={[
-            { value: "Remote", label: "Remote" },
-            { value: "Onsite", label: "Onsite" },
-            { value: "Hybrid", label: "Hybrid" },
-          ]}
-        />
-        <Select
-          label="Status"
-          name="status"
-          defaultValue={defaults.status}
-          options={[
-            { value: "Applied", label: "Applied" },
-            { value: "Interview", label: "Interview" },
-            { value: "Rejected", label: "Rejected" },
-            { value: "Offer", label: "Offer" },
-          ]}
-        />
-        <Input
-          label="Application Date"
-          name="appliedDate"
-          type="date"
-          defaultValue={defaults.appliedDate}
-        />
-      </div>
-
-      <Input
-        label="Job URL"
-        name="url"
-        type="url"
-        defaultValue={defaults.url}
-        placeholder="https://..."
-      />
-
-      <Input
-        label="Tags"
-        name="tags"
-        defaultValue={defaults.tags}
-        placeholder="Remote, Urgent, Startup"
-      />
-
-      {/* Interview Details */}
-      <div className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
-        <h3 className="mb-3 text-sm font-medium text-zinc-500 dark:text-zinc-400">
-          Interview Details (optional)
-        </h3>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="space-y-2">
+          <Label htmlFor="company">Company *</Label>
           <Input
-            label="Interview Date"
-            name="interviewDate"
-            type="date"
-            defaultValue={defaults.interviewDate}
+            id="company"
+            name="company"
+            defaultValue={defaults.company}
+            placeholder="Acme Inc."
+            required
           />
-          <Select
-            label="Interview Type"
-            name="interviewType"
-            defaultValue={defaults.interviewType}
-            options={[
-              { value: "", label: "Select type" },
-              { value: "Online", label: "Online" },
-              { value: "Onsite", label: "Onsite" },
-            ]}
-          />
+          {state?.fieldErrors?.company && (
+            <p className="text-sm text-destructive">
+              {state.fieldErrors.company}
+            </p>
+          )}
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="position">Position *</Label>
           <Input
-            label="Meeting Link"
-            name="interviewLink"
-            type="url"
-            defaultValue={defaults.interviewLink}
-            placeholder="https://meet.google.com/..."
+            id="position"
+            name="position"
+            defaultValue={defaults.position}
+            placeholder="Frontend Developer"
+            required
           />
+          {state?.fieldErrors?.position && (
+            <p className="text-sm text-destructive">
+              {state.fieldErrors.position}
+            </p>
+          )}
         </div>
       </div>
 
-      <div>
-        <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-          Notes
-        </label>
-        <textarea
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+        {/* Position Type */}
+        <div className="space-y-2">
+          <Label>Position Type</Label>
+          <Select name="positionType" defaultValue={defaults.positionType}>
+            {/* Set h-10 to match standard shadcn input height */}
+            <SelectTrigger className="w-full h-10">
+              <SelectValue placeholder="Select type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Remote">Remote</SelectItem>
+              <SelectItem value="Onsite">Onsite</SelectItem>
+              <SelectItem value="Hybrid">Hybrid</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Status */}
+        <div className="space-y-2">
+          <Label>Status</Label>
+          <Select name="status" defaultValue={defaults.status}>
+            {/* Set h-10 and removed h-full which can cause issues in grid */}
+            <SelectTrigger className="w-full h-10">
+              <SelectValue placeholder="Select status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Applied">Applied</SelectItem>
+              <SelectItem value="Interview">Interview</SelectItem>
+              <SelectItem value="Rejected">Rejected</SelectItem>
+              <SelectItem value="Offer">Offer</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Application Date */}
+        <div className=" flex flex-col">
+          <label htmlFor="appliedDate" className="text-sm ">
+            Application Date <span className="text-destructive">*</span>
+          </label>
+
+          {/* Hidden input ensures server action receives yyyy-mm-dd */}
+          <input
+            type="hidden"
+            name="appliedDate"
+            value={appliedDate ? format(appliedDate, "yyyy-MM-dd") : ""}
+          />
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                variant="secondary"
+                className={cn(
+                  "w-full justify-start text-left font-normal h-9 py-0 px-2 border border-input bg-background hover:bg-accent",
+                  !appliedDate && "text-muted-foreground",
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4 opacity-70" />
+                {appliedDate ? (
+                  format(appliedDate, "PPP")
+                ) : (
+                  <span>Pick a date</span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto " align="start">
+              <Calendar
+                mode="single"
+                selected={appliedDate}
+                onSelect={setAppliedDate}
+                initialFocus
+                className="rounded-md border shadow-md bg-popover"
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="url">Job URL</Label>
+        <Input
+          id="url"
+          name="url"
+          type="url"
+          defaultValue={defaults.url}
+          placeholder="https://..."
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="url">Cv URL</Label>
+        <Input
+          id="cvUrl"
+          name="cvUrl"
+          type="cvUrl"
+          defaultValue={defaults.cvUrl}
+          placeholder="https://..."
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="tags">Tags</Label>
+        <Input
+          id="tags"
+          name="tags"
+          defaultValue={defaults.tags}
+          placeholder="Remote, Urgent, Startup"
+        />
+      </div>
+
+      <div className="rounded-lg border border-border p-4">
+        <h3 className="mb-3 text-sm font-medium text-muted-foreground">
+          Interview Details (optional)
+        </h3>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+          <div className="space-y-2">
+            <Label htmlFor="interviewDate">Interview Date</Label>
+            <input
+              type="hidden"
+              name="interviewDate"
+              value={interviewDate ? format(interviewDate, "yyyy-MM-dd") : ""}
+            />
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className={cn(
+                    "w-full justify-start text-left font-normal h-10 py-0 px-3 border border-input bg-background hover:bg-accent",
+                    !interviewDate && "text-muted-foreground",
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4 opacity-70" />
+                  {interviewDate ? (
+                    format(interviewDate, "PPP")
+                  ) : (
+                    <span>Pick a date</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={interviewDate}
+                  onSelect={setInterviewDate}
+                  initialFocus
+                  className="rounded-md border shadow-md bg-popover"
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+          <div className="space-y-2">
+            <Label>Interview Type</Label>
+            <Select name="interviewType" defaultValue={defaults.interviewType}>
+              <SelectTrigger className="w-full py-5 h-10 justify-start text-left font-normal">
+                <SelectValue className="w-full" placeholder="Select type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Select type</SelectItem>
+                <SelectItem value="Online">Online</SelectItem>
+                <SelectItem value="Onsite">Onsite</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2 w-full">
+            <Label htmlFor="interviewLink">Meeting Link</Label>
+            <Input
+              id="interviewLink"
+              name="interviewLink"
+              type="url"
+              defaultValue={defaults.interviewLink}
+              placeholder="https://meet.google.com/..."
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="notes">Notes</Label>
+        <Textarea
+          id="notes"
           name="notes"
           rows={3}
           defaultValue={defaults.notes}
           placeholder="Any additional notes..."
-          className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500"
         />
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 pt-2">
         <Button type="submit" disabled={pending}>
           {pending
             ? mode === "edit"
@@ -197,13 +360,7 @@ export function JobForm({ mode = "create", initialData }: JobFormProps) {
               ? "Update Job"
               : "Add Job"}
         </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={() =>
-            mode === "edit" ? router.push("/dashboard/jobs") : router.back()
-          }
-        >
+        <Button type="button" variant="secondary" onClick={onCancel}>
           Cancel
         </Button>
       </div>

@@ -108,13 +108,25 @@ export const authOptions: NextAuthOptions = {
       }
       return true;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
         token.name = user.name;
         token.email = user.email;
         token.image = user.image as string;
       }
+
+      if (trigger === "update") {
+        const incomingName =
+          typeof (session as { name?: unknown } | undefined)?.name === "string"
+            ? (session as { name: string }).name
+            : undefined;
+
+        if (incomingName) {
+          token.name = incomingName;
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {

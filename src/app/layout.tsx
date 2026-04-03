@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "JobTrackr - Track Your Job Search",
+  title: "HireFlow - Track Your Job Search",
   description: "A modern job application tracking system for web developers",
 };
 
