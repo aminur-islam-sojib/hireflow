@@ -6,7 +6,7 @@ import Modal from "../ui/modal";
 import { JobForm } from "@/components/jobs/job-form";
 import { Plus } from "lucide-react";
 
-const AddJob: React.FC = () => {
+const AddJob = ({ title }: { title?: string }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleClose = useCallback(() => {
@@ -20,7 +20,7 @@ const AddJob: React.FC = () => {
   return (
     <div className="space-y-4">
       <Button onClick={() => setIsOpen(true)} variant="primary">
-        <Plus className="mr-2 h-4 w-4" /> Add Job
+        <Plus className="mr-2 h-4 w-4" /> {title || "Add Job"}
       </Button>
 
       <Modal
@@ -30,7 +30,11 @@ const AddJob: React.FC = () => {
         size="md"
         animation="scale"
       >
-        <JobForm mode="create" onSuccess={handleSuccess} onCancel={handleClose} />
+        <JobForm
+          mode="create"
+          onSuccess={handleSuccess}
+          onCancel={handleClose}
+        />
       </Modal>
     </div>
   );

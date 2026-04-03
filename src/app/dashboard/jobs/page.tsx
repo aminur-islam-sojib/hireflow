@@ -2,17 +2,13 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Dialog } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { JobForm } from "@/components/jobs/job-form";
 import { SearchFilter } from "@/components/jobs/search-filter";
 import { ExportCSV } from "@/components/jobs/export-csv";
-import { deleteJobAction } from "@/lib/actions/job-actions";
 import { formatDate } from "@/lib/utils";
-import { useToast } from "@/components/providers/toast-provider";
-import { Pencil, Trash2, BookmarkCheck } from "lucide-react";
+import { Pencil, BookmarkCheck } from "lucide-react";
 import AddJob from "@/components/providers/add-job";
+import DeleteJob from "@/components/providers/delete-job";
 
 type Job = {
   _id: string;
@@ -34,9 +30,7 @@ export default function JobsPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [sort, setSort] = useState("date-desc");
-  const [showNewDialog, setShowNewDialog] = useState(false);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
 
   const fetchJobs = useCallback(async () => {
     setLoading(true);
@@ -62,16 +56,6 @@ export default function JobsPage() {
   const handleStatusChange = (value: string) => setStatus(value);
   const handleSortChange = (value: string) => setSort(value);
 
-  async function handleDelete(id: string) {
-    const result = await deleteJobAction(id);
-    if (result?.error) {
-      toast(result.error, "error");
-    } else {
-      toast("Job deleted");
-      fetchJobs();
-    }
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -85,10 +69,7 @@ export default function JobsPage() {
         </div>
         <div className="flex items-center gap-2">
           <ExportCSV />
-          {/* <Button size="sm" onClick={() => setShowNewDialog(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Job
-          </Button> */}
+
           <AddJob />
         </div>
       </div>
@@ -108,13 +89,9 @@ export default function JobsPage() {
           <p className="text-zinc-500 dark:text-zinc-400">
             No job applications found
           </p>
-          <Button
-            variant="ghost"
-            className="mt-2"
-            onClick={() => setShowNewDialog(true)}
-          >
-            Add your first job
-          </Button>
+          <div className="mt-2">
+            <AddJob title="Add you first job" />
+          </div>
         </div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-zinc-200 dark:border-zinc-800">
@@ -194,12 +171,11 @@ export default function JobsPage() {
                       >
                         <Pencil className="h-4 w-4" />
                       </Link>
-                      <button
-                        onClick={() => handleDelete(job._id)}
-                        className="rounded p-1 text-zinc-500 hover:bg-red-50 dark:text-zinc-400 dark:hover:bg-red-950/30"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      <DeleteJob
+                        jobId={job._id}
+                        companyName={job.company}
+                        onSuccess={fetchJobs}
+                      />
                     </div>
                   </td>
                 </tr>
@@ -236,12 +212,11 @@ export default function JobsPage() {
                     >
                       <Pencil className="h-4 w-4" />
                     </Link>
-                    <button
-                      onClick={() => handleDelete(job._id)}
-                      className="text-zinc-500"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+                    <DeleteJob
+                      jobId={job._id}
+                      companyName={job.company}
+                      onSuccess={fetchJobs}
+                    />
                   </div>
                 </div>
               </div>
@@ -249,14 +224,6 @@ export default function JobsPage() {
           </div>
         </div>
       )}
-
-      <Dialog
-        open={showNewDialog}
-        onClose={() => setShowNewDialog(false)}
-        title="Add Job Application"
-      >
-        <JobForm mode="create" />
-      </Dialog>
     </div>
   );
 }

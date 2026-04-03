@@ -4,8 +4,9 @@ import { useRouter } from "next/navigation";
 import { Dropdown } from "@/components/ui/dropdown";
 import { DropdownMenuItem } from "@/components/ui/menu";
 import { useTheme } from "@/components/providers/theme-provider";
-import { signOut } from "next-auth/react";
-import { Moon, Sun, UserIcon, LogOut } from "lucide-react";
+
+import { Moon, Sun, UserIcon } from "lucide-react";
+import Logout from "../providers/logout";
 
 export function DashboardHeader({
   user,
@@ -43,13 +44,7 @@ export function DashboardHeader({
           <UserIcon className="h-4 w-4" />
           Profile
         </DropdownMenuItem>
-        <DropdownMenuItem
-          dangerous
-          onClick={() => signOut({ callbackUrl: "/login" })}
-        >
-          <LogOut className="h-4 w-4" />
-          Sign out
-        </DropdownMenuItem>
+        <Logout className="w-full justify-start text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30" />
       </Dropdown>
     </header>
   );

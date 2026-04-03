@@ -3,6 +3,7 @@ import { useState } from "react";
 import Modal from "../ui/modal";
 import { Button } from "../ui/button";
 import { signOut } from "next-auth/react";
+import { LogOut } from "lucide-react";
 
 type LogoutProps = {
   className?: string;
@@ -23,7 +24,7 @@ function Logout({ className, label = "Sign out" }: LogoutProps) {
         className={className}
         onClick={() => setIsLogoutOpen(true)}
       >
-        {label}
+        <LogOut className="h-4 w-4 mr-1" /> <div>{label}</div>
       </Button>
 
       <Modal
