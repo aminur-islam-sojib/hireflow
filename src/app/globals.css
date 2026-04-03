@@ -84,9 +84,11 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
-  border-color: transparent;
+  /* border-color: transparent; */
 }
 
 html {

@@ -11,7 +11,8 @@ import { ExportCSV } from "@/components/jobs/export-csv";
 import { deleteJobAction } from "@/lib/actions/job-actions";
 import { formatDate } from "@/lib/utils";
 import { useToast } from "@/components/providers/toast-provider";
-import { Plus, Pencil, Trash2, BookmarkCheck } from "lucide-react";
+import { Pencil, Trash2, BookmarkCheck } from "lucide-react";
+import AddJob from "@/components/providers/add-job";
 
 type Job = {
   _id: string;
@@ -84,10 +85,11 @@ export default function JobsPage() {
         </div>
         <div className="flex items-center gap-2">
           <ExportCSV />
-          <Button size="sm" onClick={() => setShowNewDialog(true)}>
+          {/* <Button size="sm" onClick={() => setShowNewDialog(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Add Job
-          </Button>
+          </Button> */}
+          <AddJob />
         </div>
       </div>
 
