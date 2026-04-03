@@ -15,25 +15,40 @@ export function ExportCSV() {
         return;
       }
 
-      const columns = ["Company", "Position", "Position Type", "Status", "Applied Date", "Interview Date", "Tags", "URL", "Notes"];
+      const columns = [
+        "Company",
+        "Position",
+        "Position Type",
+        "Status",
+        "Applied Date",
+        "Interview Date",
+        "Tags",
+        "URL",
+        "Notes",
+      ];
       const rows = data.jobs.map((j: any) => [
         `"${j.company}"`,
         `"${j.position}"`,
         j.positionType,
         j.status,
         new Date(j.appliedDate).toLocaleDateString(),
-        j.interview?.date ? new Date(j.interview.date).toLocaleDateString() : "",
+        j.interview?.date
+          ? new Date(j.interview.date).toLocaleDateString()
+          : "",
         (j.tags || []).join("; "),
         j.url || "",
         `"${(j.notes || "").replace(/"/g, '""')}"`,
       ]);
 
-      const csv = [columns.join(","), ...rows.map((r: string[]) => r.join(","))].join("\n");
+      const csv = [
+        columns.join(","),
+        ...rows.map((r: string[]) => r.join(",")),
+      ].join("\n");
       const blob = new Blob([csv], { type: "text/csv" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `jobtrackr_export_${new Date().toISOString().split("T")[0]}.csv`;
+      a.download = `HireFlow_export_${new Date().toISOString().split("T")[0]}.csv`;
       a.click();
       URL.revokeObjectURL(url);
       toast("Exported successfully");

@@ -1,38 +1,53 @@
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Briefcase, CalendarCheck, BarChart3, Bell, Download } from "lucide-react";
+
+import {
+  LayoutDashboard,
+  Briefcase,
+  CalendarCheck,
+  BarChart3,
+  Bell,
+  Download,
+} from "lucide-react";
+import Image from "next/image";
 
 const features = [
   {
     icon: LayoutDashboard,
     title: "Dashboard",
-    description: "Visual overview of your job search with charts and stats at a glance.",
+    description:
+      "Visual overview of your job search with charts and stats at a glance.",
   },
   {
     icon: Briefcase,
     title: "Track Applications",
-    description: "Add and manage all your job applications with status, notes, and tags.",
+    description:
+      "Add and manage all your job applications with status, notes, and tags.",
   },
   {
     icon: CalendarCheck,
     title: "Interview Tracking",
-    description: "Keep details organized — date, type, and meeting links for every interview.",
+    description:
+      "Keep details organized — date, type, and meeting links for every interview.",
   },
   {
     icon: BarChart3,
     title: "Kanban Board",
-    description: "Drag-and-drop your applications through the pipeline visually.",
+    description:
+      "Drag-and-drop your applications through the pipeline visually.",
   },
   {
     icon: Bell,
     title: "Smart Reminders",
-    description: "Automated email alerts for upcoming interviews and follow-up reminders.",
+    description:
+      "Automated email alerts for upcoming interviews and follow-up reminders.",
   },
   {
     icon: Download,
     title: "CSV Export",
-    description: "Export your entire application history as a CSV file with one click.",
+    description:
+      "Export your entire application history as a CSV file with one click.",
   },
 ];
 
@@ -45,9 +60,18 @@ export default async function LandingPage() {
       {/* Nav */}
       <nav className="border-b border-zinc-200 dark:border-zinc-800">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-          <span className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
-            JobTrackr
-          </span>
+          <div className=" flex">
+            <Image
+              src="/hire-flow.png"
+              alt="hireflow logo"
+              height={12}
+              width={12}
+              className="mr-2 h-6 w-6"
+            />
+            <span className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+              HireFlow
+            </span>
+          </div>
           <div className="flex items-center gap-3">
             {isLoggedIn ? (
               <Button asChild variant="primary">
@@ -75,8 +99,8 @@ export default async function LandingPage() {
           <span className="text-zinc-500">job applications.</span>
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-zinc-500 dark:text-zinc-400">
-          A clean, modern tool to track where you&apos;ve applied, manage interviews,
-          and stay organized throughout your job search.
+          A clean, modern tool to track where you&apos;ve applied, manage
+          interviews, and stay organized throughout your job search.
         </p>
         <div className="mt-8 flex items-center justify-center gap-3">
           {isLoggedIn ? (
@@ -108,7 +132,9 @@ export default async function LandingPage() {
               <h3 className="mb-1 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
                 {feature.title}
               </h3>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">{feature.description}</p>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                {feature.description}
+              </p>
             </div>
           ))}
         </div>

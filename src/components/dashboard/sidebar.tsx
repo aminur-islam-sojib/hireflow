@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import Image from "next/image";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -51,13 +52,22 @@ export function Sidebar({ user }: { user?: { name?: string | null } }) {
         )}
       >
         <div className="flex h-16 items-center border-b border-zinc-200 px-6 dark:border-zinc-800">
-          <Link
-            href="/dashboard"
-            className="text-lg font-bold tracking-tight text-zinc-900 dark:text-zinc-100"
-            onClick={() => setOpen(false)}
-          >
-            JobTrackr
-          </Link>
+          <div className="flex items-center">
+            <Image
+              src="/hire-flow.png"
+              alt="hireflow logo "
+              height={12}
+              width={12}
+              className="mr-2 h-6 w-6"
+            />
+            <Link
+              href="/"
+              className="text-lg font-bold tracking-tight text-zinc-900 dark:text-zinc-100"
+              onClick={() => setOpen(false)}
+            >
+              HireFlow
+            </Link>
+          </div>
           <button className="ml-auto md:hidden" onClick={() => setOpen(false)}>
             <X className="h-5 w-5 text-zinc-500" />
           </button>

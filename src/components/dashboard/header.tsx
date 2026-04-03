@@ -17,7 +17,7 @@ export function DashboardHeader({
   const isDark = theme === "dark";
 
   return (
-    <header className="flex h-16 items-center justify-end border-b border-zinc-200 px-6 dark:border-zinc-800 gap-4">
+    <header className="flex h-16 items-center  justify-end border-b border-zinc-200 px-6 dark:border-zinc-800 gap-4">
       <button
         className="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
         onClick={() => setTheme(isDark ? "light" : "dark")}
