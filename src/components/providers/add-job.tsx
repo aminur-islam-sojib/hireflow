@@ -6,7 +6,12 @@ import Modal from "../ui/modal";
 import { JobForm } from "@/components/jobs/job-form";
 import { Plus } from "lucide-react";
 
-const AddJob = ({ title }: { title?: string }) => {
+type AddJobProps = {
+  title?: string;
+  onSuccess?: () => void;
+};
+
+const AddJob = ({ title, onSuccess }: AddJobProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleClose = useCallback(() => {
@@ -15,7 +20,8 @@ const AddJob = ({ title }: { title?: string }) => {
 
   const handleSuccess = useCallback(() => {
     setIsOpen(false);
-  }, []);
+    onSuccess?.();
+  }, [onSuccess]);
 
   return (
     <div className="space-y-4">

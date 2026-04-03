@@ -70,7 +70,7 @@ export default function JobsPage() {
         <div className="flex items-center gap-2">
           <ExportCSV />
 
-          <AddJob />
+          <AddJob onSuccess={fetchJobs} />
         </div>
       </div>
 
@@ -90,7 +90,7 @@ export default function JobsPage() {
             No job applications found
           </p>
           <div className="mt-2">
-            <AddJob title="Add you first job" />
+            <AddJob title="Add you first job" onSuccess={fetchJobs} />
           </div>
         </div>
       ) : (

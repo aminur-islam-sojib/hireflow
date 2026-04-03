@@ -37,7 +37,7 @@ type JobFormState = {
 type JobFormProps = {
   mode?: "create" | "edit";
   initialData?: JobFormState["job"] & { _id?: string };
-  onSuccess?: () => void;
+  onSuccess?: () => void | Promise<void>;
   onCancel?: () => void;
 };
 
@@ -116,8 +116,7 @@ export function JobForm({
         mode === "edit" ? "Job updated successfully" : "Job added successfully",
       );
       if (onSuccess) {
-        onSuccess();
-        router.refresh();
+        void onSuccess();
       } else {
         router.push("/dashboard/jobs");
         router.refresh();

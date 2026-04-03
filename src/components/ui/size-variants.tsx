@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Modal from "./modal";
-import Button from "../button/button";
+import { Button } from "./button";
 
 const SizeVariantsView: React.FC = () => {
   const [isSmallOpen, setIsSmallOpen] = useState(false);
@@ -15,24 +15,24 @@ const SizeVariantsView: React.FC = () => {
       <div className="flex flex-wrap gap-3">
         <Button
           onClick={() => setIsSmallOpen(true)}
-          variant="default"
+          variant="primary"
           className="bg-green-500 hover:bg-green-600"
         >
           Small Modal
         </Button>
-        <Button onClick={() => setIsMediumOpen(true)} variant="default">
+        <Button onClick={() => setIsMediumOpen(true)} variant="primary">
           Medium Modal
         </Button>
         <Button
           onClick={() => setIsLargeOpen(true)}
-          variant="default"
+          variant="primary"
           className="bg-purple-500 hover:bg-purple-600"
         >
           Large Modal
         </Button>
         <Button
           onClick={() => setIsXLOpen(true)}
-          variant="default"
+          variant="primary"
           className="bg-indigo-500 hover:bg-indigo-600"
         >
           Extra Large Modal
@@ -61,7 +61,7 @@ const SizeVariantsView: React.FC = () => {
             </Button>
             <Button
               onClick={() => setIsSmallOpen(false)}
-              variant="default"
+              variant="primary"
               className="bg-green-500 hover:bg-green-600"
               size="sm"
             >
@@ -92,7 +92,7 @@ const SizeVariantsView: React.FC = () => {
             </p>
           </div>
           <div className="flex justify-end">
-            <Button onClick={() => setIsMediumOpen(false)} variant="default">
+            <Button onClick={() => setIsMediumOpen(false)} variant="primary">
               Got it
             </Button>
           </div>
@@ -132,7 +132,7 @@ const SizeVariantsView: React.FC = () => {
           <div className="flex justify-end">
             <Button
               onClick={() => setIsLargeOpen(false)}
-              variant="default"
+              variant="primary"
               className="bg-purple-500 hover:bg-purple-600"
             >
               Close
@@ -157,7 +157,7 @@ const SizeVariantsView: React.FC = () => {
             {[1, 2, 3, 4, 5, 6].map((item) => (
               <div
                 key={item}
-                className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-gray-200 dark:border-gray-700"
+                className="bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-gray-200 dark:border-gray-700"
               >
                 <h4 className="font-medium mb-2 text-gray-800 dark:text-gray-200">
                   Item {item}
@@ -172,7 +172,7 @@ const SizeVariantsView: React.FC = () => {
           <div className="flex justify-end">
             <Button
               onClick={() => setIsXLOpen(false)}
-              variant="default"
+              variant="primary"
               className="bg-indigo-500 hover:bg-indigo-600"
             >
               Close

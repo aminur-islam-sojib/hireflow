@@ -2,14 +2,14 @@
 
 import React, { useState } from "react";
 import Modal from "./modal";
-import Button from "../button/button";
+import { Button } from "./button";
 
 const BasicModalView: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="space-y-4">
-      <Button onClick={() => setIsOpen(true)} variant="default">
+      <Button onClick={() => setIsOpen(true)} variant="primary">
         Open Basic Modal
       </Button>
 

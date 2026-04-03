@@ -1,7 +1,13 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Search } from "lucide-react";
 
 type SearchFilterProps = {
@@ -10,7 +16,11 @@ type SearchFilterProps = {
   onSortChange: (value: string) => void;
 };
 
-export function SearchFilter({ onSearch, onStatusChange, onSortChange }: SearchFilterProps) {
+export function SearchFilter({
+  onSearch,
+  onStatusChange,
+  onSortChange,
+}: SearchFilterProps) {
   return (
     <div className="flex flex-col gap-3 sm:flex-row lg:items-end">
       <div className="flex-1">
@@ -23,28 +33,36 @@ export function SearchFilter({ onSearch, onStatusChange, onSortChange }: SearchF
       </div>
       <div className="w-full sm:w-40">
         <Select
-          options={[
-            { value: "all", label: "All Status" },
-            { value: "Applied", label: "Applied" },
-            { value: "Interview", label: "Interview" },
-            { value: "Rejected", label: "Rejected" },
-            { value: "Offer", label: "Offer" },
-          ]}
           defaultValue="all"
-          onChange={(e) => onStatusChange(e.target.value)}
-        />
+          onValueChange={(value) => onStatusChange(value ?? "all")}
+        >
+          <SelectTrigger className="w-full h-10">
+            <SelectValue placeholder="All Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="Applied">Applied</SelectItem>
+            <SelectItem value="Interview">Interview</SelectItem>
+            <SelectItem value="Rejected">Rejected</SelectItem>
+            <SelectItem value="Offer">Offer</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
       <div className="w-full sm:w-44">
         <Select
-          options={[
-            { value: "date-desc", label: "Newest First" },
-            { value: "date-asc", label: "Oldest First" },
-            { value: "company", label: "Company (A-Z)" },
-            { value: "status", label: "Status" },
-          ]}
           defaultValue="date-desc"
-          onChange={(e) => onSortChange(e.target.value)}
-        />
+          onValueChange={(value) => onSortChange(value ?? "date-desc")}
+        >
+          <SelectTrigger className="w-full h-10">
+            <SelectValue placeholder="Newest First" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="date-desc">Newest First</SelectItem>
+            <SelectItem value="date-asc">Oldest First</SelectItem>
+            <SelectItem value="company">Company (A-Z)</SelectItem>
+            <SelectItem value="status">Status</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );

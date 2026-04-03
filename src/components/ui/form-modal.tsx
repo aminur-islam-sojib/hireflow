@@ -25,12 +25,12 @@ const FormModalView: React.FC = () => {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-3">
-        <Button onClick={() => setIsContactOpen(true)} variant="default">
+        <Button onClick={() => setIsContactOpen(true)} variant="primary">
           Contact Form Modal
         </Button>
         <Button
           onClick={() => setIsSettingsOpen(true)}
-          variant="default"
+          variant="primary"
           className="bg-purple-500 hover:bg-purple-600"
         >
           Settings Form Modal
@@ -152,7 +152,7 @@ const FormModalView: React.FC = () => {
             >
               Cancel
             </Button>
-            <Button type="submit" variant="default">
+            <Button type="submit" variant="primary">
               Send Message
             </Button>
           </div>
@@ -301,7 +301,7 @@ const FormModalView: React.FC = () => {
             </Button>
             <Button
               type="submit"
-              variant="default"
+              variant="primary"
               className="bg-purple-500 hover:bg-purple-600"
             >
               Save Settings
