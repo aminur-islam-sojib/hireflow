@@ -37,7 +37,7 @@ export default async function KanbanPage() {
 
       columns = columns.map((col) => ({
         ...col,
-        jobs: jobs.filter((j) => j.status === col.status),
+        jobs: jobs.filter((j) => j.status === col.status).map((j) => JSON.parse(JSON.stringify(j))),
       }));
     } catch (error) {
       console.error(

@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(ls -la --time=sort *.ts)",
+      "Bash(ls -la .next/dev/**/*.json)",
+      "Bash(rm:*)",
+      "Bash(sed:*)"
+    ]
+  }
+}

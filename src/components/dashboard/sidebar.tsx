@@ -4,7 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Briefcase, Columns, Settings, Menu, X } from "lucide-react";
+import {
+  LayoutDashboard,
+  Briefcase,
+  Columns,
+  Settings,
+  Menu,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
@@ -39,7 +46,7 @@ export function Sidebar({ user }: { user?: { name?: string | null } }) {
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 z-50 flex w-64 flex-col border-r border-zinc-200 bg-white transition-transform dark:border-zinc-800 dark:bg-zinc-900 md:relative md:translate-x-0",
+          "fixed inset-y-0 left-0  z-50 flex w-64 flex-col border-r border-zinc-200 bg-white transition-transform dark:border-zinc-800 dark:bg-zinc-900 md:relative md:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >
