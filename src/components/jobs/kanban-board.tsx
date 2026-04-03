@@ -58,7 +58,6 @@ export function KanbanBoard({ columns: initialColumns }: KanbanBoardProps) {
     const map: Record<string, any> = {};
     for (const col of initialColumns) {
       for (const job of col.jobs) {
-        (job as any) && setJobMap((m) => ({ ...m, [(job as any)._id]: job }));
         map[(job as any)._id] = job;
       }
     }

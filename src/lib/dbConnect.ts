@@ -52,23 +52,29 @@ if (dnsServers && dnsServers.length > 0) {
   }
 }
 
-// here code changes
-if (!uri) {
-  throw new Error("❌ Please add MONGO_URI to .env.local");
-}
+let client: MongoClient | null = null;
 
-// here code changes
-if (!dname) {
-  throw new Error("❌ Please add DB_NAME to .env.local");
-}
+function getMongoClient() {
+  if (!uri) {
+    throw new Error("❌ Please add MONGO_URI to .env.local");
+  }
 
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
-});
+  if (!dname) {
+    throw new Error("❌ Please add DB_NAME to .env.local");
+  }
+
+  if (!client) {
+    client = new MongoClient(uri, {
+      serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+      },
+    });
+  }
+
+  return client;
+}
 
 let connectPromise: Promise<MongoClient> | null = null;
 let mongoState: MongoState = {
@@ -95,13 +101,15 @@ function setMongoState(next: Partial<MongoState>) {
 }
 
 export async function connectDB() {
+  const mongoClient = getMongoClient();
+
   if (mongoState.state === "connected") {
-    return client;
+    return mongoClient;
   }
 
   if (!connectPromise) {
     setMongoState({ state: "connecting", lastError: null });
-    connectPromise = client
+    connectPromise = mongoClient
       .connect()
       .then((connectedClient) => {
         setMongoState({
@@ -124,8 +132,10 @@ export async function connectDB() {
 
 export async function checkMongoConnection() {
   try {
+    const mongoClient = getMongoClient();
+
     await connectDB();
-    await client.db(dname).command({ ping: 1 });
+    await mongoClient.db(dname).command({ ping: 1 });
     console.log("MongoDB connected");
     return true;
   } catch (error) {
@@ -137,7 +147,7 @@ export async function checkMongoConnection() {
 export function dbConnect<TSchema extends Document = Document>(
   cname: string,
 ): Collection<TSchema> {
-  return client.db(dname).collection(cname);
+  return getMongoClient().db(dname).collection(cname);
 }
 
 export function toObjectId(value: string) {

@@ -24,20 +24,27 @@ export default async function KanbanPage() {
   }));
 
   if (userId) {
-    await connectDB();
-    const jobsCollection = dbConnect(collections.JOBS);
+    try {
+      await connectDB();
+      const jobsCollection = dbConnect(collections.JOBS);
 
-    const jobs = await jobsCollection
-      .find({
-        userId: toObjectId(userId),
-      })
-      .sort({ createdAt: -1 })
-      .toArray();
+      const jobs = await jobsCollection
+        .find({
+          userId: toObjectId(userId),
+        })
+        .sort({ createdAt: -1 })
+        .toArray();
 
-    columns = columns.map((col) => ({
-      ...col,
-      jobs: jobs.filter((j) => j.status === col.status),
-    }));
+      columns = columns.map((col) => ({
+        ...col,
+        jobs: jobs.filter((j) => j.status === col.status),
+      }));
+    } catch (error) {
+      console.error(
+        "[Kanban] Failed to load jobs:",
+        error instanceof Error ? error.message : String(error),
+      );
+    }
   }
 
   return (

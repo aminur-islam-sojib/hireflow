@@ -1,13 +1,19 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Dropdown } from "@/components/ui/dropdown";
 import { DropdownMenuItem } from "@/components/ui/menu";
 import { useTheme } from "@/components/providers/theme-provider";
 import { signOut } from "next-auth/react";
 import { Moon, Sun, UserIcon, LogOut } from "lucide-react";
 
-export function DashboardHeader({ user }: { user?: { name?: string | null; email?: string | null } }) {
+export function DashboardHeader({
+  user,
+}: {
+  user?: { name?: string | null; email?: string | null };
+}) {
   const { theme, setTheme } = useTheme();
+  const router = useRouter();
   const isDark = theme === "dark";
 
   return (
@@ -30,14 +36,18 @@ export function DashboardHeader({ user }: { user?: { name?: string | null; email
         <div className="px-3 py-2 text-sm font-medium text-zinc-900 dark:text-zinc-100">
           {user?.name}
         </div>
-        <div className="px-3 pb-2 text-xs text-zinc-500 dark:text-zinc-400">{user?.email}</div>
-        <DropdownMenuItem onClick={() => window.location.href = "/dashboard/profile"}>
+        <div className="px-3 pb-2 text-xs text-zinc-500 dark:text-zinc-400">
+          {user?.email}
+        </div>
+        <DropdownMenuItem onClick={() => router.push("/dashboard/profile")}>
           <UserIcon className="h-4 w-4" />
           Profile
         </DropdownMenuItem>
         <DropdownMenuItem dangerous>
           <LogOut className="h-4 w-4" />
-          <button onClick={() => signOut({ callbackUrl: "/login" })}>Sign out</button>
+          <button onClick={() => signOut({ callbackUrl: "/login" })}>
+            Sign out
+          </button>
         </DropdownMenuItem>
       </Dropdown>
     </header>

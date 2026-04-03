@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { registerAction } from "@/lib/actions/auth-actions";
 
-
 const initialState = { error: "", fieldErrors: {} };
 
 export function RegisterForm() {
@@ -16,8 +15,7 @@ export function RegisterForm() {
 
   useEffect(() => {
     if (state?.success) {
-      router.push("/login?registered=1");
-      router.refresh();
+      router.replace("/login?registered=1");
     }
   }, [state?.success, router]);
 
@@ -28,7 +26,10 @@ export function RegisterForm() {
       </h1>
       <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
         Already have an account?{" "}
-        <Link href="/login" className="text-zinc-900 underline decoration-zinc-400 underline-offset-4 dark:text-zinc-100">
+        <Link
+          href="/login"
+          className="text-zinc-900 underline decoration-zinc-400 underline-offset-4 dark:text-zinc-100"
+        >
           Sign in
         </Link>
       </p>
