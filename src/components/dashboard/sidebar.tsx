@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
@@ -12,9 +11,9 @@ import {
   Menu,
   X,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import Image from "next/image";
+import Logout from "../providers/logout";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -99,13 +98,7 @@ export function Sidebar({ user }: { user?: { name?: string | null } }) {
           <div className="mb-2 px-2 text-xs font-medium text-zinc-500 dark:text-zinc-400">
             {user?.name || "User"}
           </div>
-          <Button
-            variant="ghost"
-            className="w-full justify-start text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30"
-            onClick={() => signOut({ callbackUrl: "/login" })}
-          >
-            Sign out
-          </Button>
+          <Logout className="w-full justify-start text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30" />
         </div>
       </aside>
     </>

@@ -11,7 +11,7 @@ import { ExportCSV } from "@/components/jobs/export-csv";
 import { deleteJobAction } from "@/lib/actions/job-actions";
 import { formatDate } from "@/lib/utils";
 import { useToast } from "@/components/providers/toast-provider";
-import { Plus, Pencil, Trash2, Bookmark, BookmarkCheck } from "lucide-react";
+import { Plus, Pencil, Trash2, BookmarkCheck } from "lucide-react";
 
 type Job = {
   _id: string;
@@ -53,6 +53,7 @@ export default function JobsPage() {
   }, [search, status, sort]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchJobs();
   }, [fetchJobs]);
 
@@ -97,11 +98,19 @@ export default function JobsPage() {
       />
 
       {loading ? (
-        <div className="flex items-center justify-center py-12 text-zinc-500">Loading...</div>
+        <div className="flex items-center justify-center py-12 text-zinc-500">
+          Loading...
+        </div>
       ) : jobs.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-zinc-300 py-16 dark:border-zinc-700">
-          <p className="text-zinc-500 dark:text-zinc-400">No job applications found</p>
-          <Button variant="ghost" className="mt-2" onClick={() => setShowNewDialog(true)}>
+          <p className="text-zinc-500 dark:text-zinc-400">
+            No job applications found
+          </p>
+          <Button
+            variant="ghost"
+            className="mt-2"
+            onClick={() => setShowNewDialog(true)}
+          >
             Add your first job
           </Button>
         </div>
@@ -133,12 +142,22 @@ export default function JobsPage() {
             </thead>
             <tbody className="divide-y divide-zinc-200 bg-white dark:divide-zinc-800 dark:bg-zinc-900">
               {jobs.map((job) => (
-                <tr key={job._id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
+                <tr
+                  key={job._id}
+                  className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
+                >
                   <td className="px-4 py-3 text-sm font-medium text-zinc-900 dark:text-zinc-100">
                     <div className="flex items-center gap-2">
-                      {job.bookmarked && <BookmarkCheck className="h-3.5 w-3.5 text-amber-500" />}
+                      {job.bookmarked && (
+                        <BookmarkCheck className="h-3.5 w-3.5 text-amber-500" />
+                      )}
                       {job.url ? (
-                        <a href={job.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                        <a
+                          href={job.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:underline"
+                        >
                           {job.company}
                         </a>
                       ) : (
@@ -146,7 +165,9 @@ export default function JobsPage() {
                       )}
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-sm text-zinc-600 dark:text-zinc-400">{job.position}</td>
+                  <td className="px-4 py-3 text-sm text-zinc-600 dark:text-zinc-400">
+                    {job.position}
+                  </td>
                   <td className="px-4 py-3">
                     <Badge status={job.status} />
                   </td>
@@ -155,14 +176,20 @@ export default function JobsPage() {
                   </td>
                   <td className="px-4 py-3 text-sm text-zinc-500 dark:text-zinc-400">
                     {(job.tags || []).slice(0, 2).map((tag) => (
-                      <span key={tag} className="mr-1 rounded-full bg-zinc-100 px-2 py-0.5 text-xs dark:bg-zinc-800">
+                      <span
+                        key={tag}
+                        className="mr-1 rounded-full bg-zinc-100 px-2 py-0.5 text-xs dark:bg-zinc-800"
+                      >
                         {tag}
                       </span>
                     ))}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link href={`/dashboard/jobs/${job._id}`} className="rounded p-1 text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800">
+                      <Link
+                        href={`/dashboard/jobs/${job._id}`}
+                        className="rounded p-1 text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                      >
                         <Pencil className="h-4 w-4" />
                       </Link>
                       <button
@@ -184,19 +211,33 @@ export default function JobsPage() {
               <div key={job._id} className="p-4 space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    {job.bookmarked && <BookmarkCheck className="h-3.5 w-3.5 text-amber-500" />}
-                    <span className="font-medium text-zinc-900 dark:text-zinc-100">{job.company}</span>
+                    {job.bookmarked && (
+                      <BookmarkCheck className="h-3.5 w-3.5 text-amber-500" />
+                    )}
+                    <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                      {job.company}
+                    </span>
                   </div>
                   <Badge status={job.status} />
                 </div>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400">{job.position}</p>
+                <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                  {job.position}
+                </p>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-zinc-500">{formatDate(job.appliedDate)}</span>
+                  <span className="text-xs text-zinc-500">
+                    {formatDate(job.appliedDate)}
+                  </span>
                   <div className="flex items-center gap-2">
-                    <Link href={`/dashboard/jobs/${job._id}`} className="text-zinc-500">
+                    <Link
+                      href={`/dashboard/jobs/${job._id}`}
+                      className="text-zinc-500"
+                    >
                       <Pencil className="h-4 w-4" />
                     </Link>
-                    <button onClick={() => handleDelete(job._id)} className="text-zinc-500">
+                    <button
+                      onClick={() => handleDelete(job._id)}
+                      className="text-zinc-500"
+                    >
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
@@ -207,7 +248,11 @@ export default function JobsPage() {
         </div>
       )}
 
-      <Dialog open={showNewDialog} onClose={() => setShowNewDialog(false)} title="Add Job Application">
+      <Dialog
+        open={showNewDialog}
+        onClose={() => setShowNewDialog(false)}
+        title="Add Job Application"
+      >
         <JobForm mode="create" />
       </Dialog>
     </div>
