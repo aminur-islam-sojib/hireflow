@@ -43,11 +43,12 @@ export function DashboardHeader({
           <UserIcon className="h-4 w-4" />
           Profile
         </DropdownMenuItem>
-        <DropdownMenuItem dangerous>
+        <DropdownMenuItem
+          dangerous
+          onClick={() => signOut({ callbackUrl: "/login" })}
+        >
           <LogOut className="h-4 w-4" />
-          <button onClick={() => signOut({ callbackUrl: "/login" })}>
-            Sign out
-          </button>
+          Sign out
         </DropdownMenuItem>
       </Dropdown>
     </header>
